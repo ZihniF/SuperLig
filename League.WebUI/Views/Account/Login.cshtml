@@ -1,0 +1,25 @@
+@model LoginDto
+
+@{
+    ViewData["Title"] = "Admin girişi";
+}
+
+<div class="login-wrap">
+    <div class="eyebrow">YÖNETİM MERKEZİ</div>
+    <h1>Tekrar hoş geldin.</h1>
+    <p class="muted">Fikstürü, skorları ve maç olaylarını yönet.</p>
+    <form method="post" class="panel form-panel">
+        <input asp-for="ReturnUrl" type="hidden" />
+        <div asp-validation-summary="All" class="validation" role="alert"></div>
+        <div class="field">
+            <label asp-for="Username">Kullanıcı adı</label>
+            <input asp-for="Username" autocomplete="username" required />
+        </div>
+        <div class="field">
+            <label asp-for="Password">Şifre</label>
+            <input asp-for="Password" autocomplete="current-password" required />
+        </div>
+        <button class="button full" type="submit">Panele giriş yap ↗</button>
+    </form>
+    <a class="back-link" asp-controller="Home" asp-action="Index">← Lig merkezine dön</a>
+</div>

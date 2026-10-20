@@ -1,0 +1,35 @@
+@model LeaguePageDto
+
+@{
+    ViewData["Title"] = "Takımlar";
+}
+
+<div class="page-heading">
+    <div>
+        <div class="eyebrow">LİGİN RENKLERİ</div>
+        <h1>Takımlar</h1>
+        <p>Farklı şehirler, ortak bir tutku.</p>
+    </div>
+    <span class="outline-tag">@Model.Teams.Count takım</span>
+</div>
+<div class="team-grid">
+    @foreach (var team in Model.Teams)
+    {
+        var standing = Model.Standings.Single(x => x.TeamId == team.TeamId);
+        <a class="team-tile panel" asp-action="Fixtures" asp-route-seasonId="@Model.Season.SeasonId" asp-route-teamId="@team.TeamId" style="--team-color:@team.Color">
+            <div class="team-tile-top">
+                <span class="crest large">@team.ShortName</span>
+                <span class="muted">@standing.Position. sıra</span>
+            </div>
+            <h2>@team.TeamName</h2>
+            <p>@team.City</p>
+            <div class="team-tile-bottom">
+                <span>
+                    <strong>@standing.Points</strong>
+                    puan · @standing.Played maç
+                </span>
+                <span>Maçları gör ↗</span>
+            </div>
+        </a>
+    }
+</div>

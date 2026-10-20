@@ -1,0 +1,142 @@
+@model MatchDto
+
+@{
+    ViewData["Title"] = $"{Model.HomeTeam.TeamName} – {Model.AwayTeam.TeamName}";
+    var stats = Model.Statistic;
+}
+
+<a class="back-link" asp-action="Fixtures" asp-route-seasonId="@Model.SeasonId">← Fikstüre dön</a>
+<div class="page-heading">
+    <div>
+        <div class="eyebrow">MAÇ MERKEZİ</div>
+        <h1>Karşılaşma detayları</h1>
+        <p>@Model.Season.League.LeagueName · @Model.Week. hafta</p>
+    </div>
+    <span class="status @Model.Status.ToString().ToLowerInvariant()">@DisplayText.Status(Model.Status)</span>
+</div>
+<section class="scoreboard panel">
+    <div class="scoreboard-meta">
+        @Model.MatchDate.ToString("dd MMMM yyyy, dddd") · @DisplayText.Time(Model.MatchDate, Model.TimeConfirmed)
+        <span>·</span>
+        @Model.Stadium.StadiumName
+        @if (Model.SourceMatchId.HasValue)
+        {
+            <span>·</span>
+            <a href="https://www.tff.org/Default.aspx?pageID=29&amp;macId=@Model.SourceMatchId" target="_blank" rel="noopener noreferrer">TFF maç kaydı ↗</a>
+        }
+    </div>
+    <div class="scoreboard-teams">
+        <div>
+            <span class="crest jumbo" style="--team-color:@Model.HomeTeam.Color">@Model.HomeTeam.ShortName</span>
+            <h2>@Model.HomeTeam.TeamName</h2>
+            <p>Ev sahibi</p>
+        </div>
+        <div class="big-score">
+            @(Model.HomeScore?.ToString() ?? "–")
+            <span>:</span>
+            @(Model.AwayScore?.ToString() ?? "–")
+            <small>@DisplayText.Status(Model.Status)</small>
+        </div>
+        <div>
+            <span class="crest jumbo" style="--team-color:@Model.AwayTeam.Color">@Model.AwayTeam.ShortName</span>
+            <h2>@Model.AwayTeam.TeamName</h2>
+            <p>Deplasman</p>
+        </div>
+    </div>
+</section>
+<div class="detail-grid section-block">
+    <section class="panel">
+        <div class="panel-heading">
+            <div>
+                <h2>Maçın hikâyesi</h2>
+                <p>Seçilmiş goller, kartlar ve oyuncu değişiklikleri. Tüm olayları kapsamayabilir.</p>
+            </div>
+            <span class="count-label">@Model.Events.Count OLAY</span>
+        </div>
+        @if (Model.Events.Count == 0)
+        {
+            <div class="empty-state">
+                <span class="empty-symbol">◷</span>
+                <h3>Henüz olay eklenmedi.</h3>
+                <p>Bu karşılaşmaya ait olay kaydı bulunmuyor.</p>
+            </div>
+        }
+        else
+        {
+            <ol class="timeline">
+                @foreach (var item in Model.Events.OrderBy(x => x.Minute).ThenBy(x => x.AddedMinute).ThenBy(x => x.MatchEventId))
+                {
+                    <li>
+                        <span class="minute">@DisplayText.Minute(item.Minute, item.AddedMinute)′</span>
+                        <span class="event-marker @item.ActionType.ToString().ToLowerInvariant()" aria-hidden="true">
+                            @(item.ActionType == ActionType.Goal ? "⚽" : item.ActionType == ActionType.Substitution ? "⇄" : "▮")
+                        </span>
+                        <div>
+                            <strong>
+                                @DisplayText.Action(item.ActionType)
+                                <span>@item.Team.TeamName</span>
+                            </strong>
+                            <p>@item.Description</p>
+                        </div>
+                    </li>
+                }
+            </ol>
+        }
+    </section>
+    <section class="panel">
+        <div class="panel-heading">
+            <div>
+                <h2>İstatistikler</h2>
+                <p>Doğrulanmamış değerler — ile gösterilir.</p>
+            </div>
+        </div>
+        @if (stats == null)
+        {
+            <div class="empty-state">
+                <span class="empty-symbol">≡</span>
+                <h3>Veriler bekleniyor.</h3>
+                <p>Doğrulanmış istatistikler veya yönetici tarafından girilen veriler burada görünür.</p>
+            </div>
+        }
+        else
+        {
+            <div class="stats-list">
+                <div class="stat-row">
+                    <strong>@(stats.FirstHalfHomeGoals?.ToString() ?? "—")</strong>
+                    <span>İlk yarı golleri</span>
+                    <strong>@(stats.FirstHalfAwayGoals?.ToString() ?? "—")</strong>
+                </div>
+                <div class="stat-row">
+                    <strong>@(stats.SecondHalfHomeGoals?.ToString() ?? "—")</strong>
+                    <span>İkinci yarı golleri</span>
+                    <strong>@(stats.SecondHalfAwayGoals?.ToString() ?? "—")</strong>
+                </div>
+                <div class="stat-row">
+                    <strong>@DisplayText.Percentage(stats.HomePossession)</strong>
+                    <span>Topa sahip olma</span>
+                    <strong>@DisplayText.Percentage(100 - stats.HomePossession)</strong>
+                </div>
+                @if (stats.HomePossession.HasValue)
+                {
+                    <div class="possession-bar">
+                        <span style="width:@(stats.HomePossession)%"></span>
+                    </div>
+                }
+                <div class="stat-row">
+                    <strong>@(stats.HomeShots?.ToString() ?? "—")</strong>
+                    <span>Şut</span>
+                    <strong>@(stats.AwayShots?.ToString() ?? "—")</strong>
+                </div>
+                <div class="stat-row">
+                    <strong>@(stats.HomeCorners?.ToString() ?? "—")</strong>
+                    <span>Korner</span>
+                    <strong>@(stats.AwayCorners?.ToString() ?? "—")</strong>
+                </div>
+            </div>
+        }
+    </section>
+</div>
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <a class="button" asp-controller="Admin" asp-action="Result" asp-route-id="@Model.MatchId">Bu maçı yönet ↗</a>
+}

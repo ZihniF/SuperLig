@@ -1,0 +1,121 @@
+@{
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var seasonId = ViewData["SeasonId"];
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#123e31" />
+        <title>@ViewData["Title"] · Süper Lig</title>
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    </head>
+    <body>
+        <a class="skip-link" href="#main">İçeriğe geç</a>
+        <aside class="sidebar">
+            <a class="brand" asp-controller="Home" asp-action="Index">
+                <span class="brand-icon">
+                    S
+                    <span>Ⅰ</span>
+                </span>
+                <span>
+                    SÜPER LİG
+                    <small>FUTBOLUN MERKEZİ</small>
+                </span>
+            </a>
+            <div class="nav-label">LİG MERKEZİ</div>
+            <nav aria-label="Ana menü">
+                <a class="@(controller == "Home" && action == "Index" ? "active" : "")" asp-controller="Home" asp-action="Index" asp-route-seasonId="@seasonId">
+                    <span aria-hidden="true">◈</span>
+                    Genel bakış
+                </a>
+                <a class="@(action == "Standings" ? "active" : "")" asp-controller="Home" asp-action="Standings" asp-route-seasonId="@seasonId">
+                    <span aria-hidden="true">≡</span>
+                    Puan durumu
+                </a>
+                <a class="@(action == "Fixtures" || action == "Match" ? "active" : "")" asp-controller="Home" asp-action="Fixtures" asp-route-seasonId="@seasonId">
+                    <span aria-hidden="true">▦</span>
+                    Fikstür ve sonuçlar
+                </a>
+                <a class="@(action == "Teams" ? "active" : "")" asp-controller="Home" asp-action="Teams" asp-route-seasonId="@seasonId">
+                    <span aria-hidden="true">⚑</span>
+                    Takımlar
+                </a>
+            </nav>
+            <div class="nav-label management-label">YÖNETİM</div>
+            <nav aria-label="Yönetim menüsü">
+                <a class="@(controller == "Admin" || controller == "Account" ? "active" : "")" asp-controller="Admin" asp-action="Index" asp-route-seasonId="@seasonId">
+                    <span aria-hidden="true">⊞</span>
+                    Admin paneli
+                </a>
+            </nav>
+            <div class="sidebar-note">
+                <span class="tiny-ball">⚽</span>
+                <strong>Her maç, yeni bir hikâye.</strong>
+                <p>Takımını, maçları ve ligin heyecanını takip et.</p>
+            </div>
+            <div class="sidebar-bottom">
+                <span class="green-dot"></span>
+                Süper Lig takip platformu
+            </div>
+        </aside>
+        <div class="workspace">
+            <header class="topbar">
+                <span class="breadcrumb">
+                    Türkiye
+                    <span>/</span>
+                    Trendyol Süper Lig
+                </span>
+                <div class="topbar-actions">
+                    @if (ViewData["Seasons"] is List<SeasonDto> seasons)
+                    {
+                        <form asp-controller="@(controller == "Admin" ? "Admin" : "Home")"
+                              asp-action="@(controller == "Admin" ? "Index" : action is "Standings" or "Fixtures" or "Teams" ? action : "Index")"
+                              method="get"
+                              class="season-picker">
+                            <label for="seasonId">Sezon</label>
+                            <select name="seasonId" id="seasonId" data-autosubmit>
+                                @foreach (var season in seasons)
+                                {
+                                    <option value="@season.SeasonId" selected="@(Equals(seasonId, season.SeasonId))">@season.SeasonName</option>
+                                }
+                            </select>
+                            <noscript>
+                                <button>Seç</button>
+                            </noscript>
+                        </form>
+                    }
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <form asp-controller="Account" asp-action="Logout" method="post">
+                            <button class="text-button">Çıkış yap ↗</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a class="user-avatar" asp-controller="Account" asp-action="Login" aria-label="Admin girişi">Y</a>
+                    }
+                </div>
+            </header>
+            <main id="main" class="content">
+                @if (TempData["Success"] is string message)
+                {
+                    <div class="success" role="status">✓ @message</div>
+                }
+                @RenderBody()
+                <footer class="page-footer">
+                    <span>© @DateTime.Now.Year Süper Lig</span>
+                    <span>
+                        <a href="https://www.tff.org/Default.aspx?pageID=198" target="_blank" rel="noopener noreferrer">Kaynak: TFF</a>
+                        · Veri tarihi: 20 Ekim 2026 · Otomatik güncellenmez · Saatler TSİ.
+                    </span>
+                </footer>
+            </main>
+        </div>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+        @await RenderSectionAsync("Scripts", required: false)
+    </body>
+</html>

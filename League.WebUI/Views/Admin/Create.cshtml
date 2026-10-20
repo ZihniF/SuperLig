@@ -1,0 +1,65 @@
+@model CreateMatchDto
+
+@{
+    ViewData["Title"] = "Yeni maç";
+    var teams = (List<TeamDto>)ViewData["Teams"]!;
+    var stadiums = (List<StadiumDto>)ViewData["Stadiums"]!;
+}
+
+<a class="back-link" asp-action="Index" asp-route-seasonId="@Model.SeasonId">← Admin paneline dön</a>
+<div class="page-heading">
+    <div>
+        <div class="eyebrow">FİKSTÜR YÖNETİMİ</div>
+        <h1>Yeni bir karşılaşma.</h1>
+        <p>Maçı oluştur, ligin takvimine ekle.</p>
+    </div>
+</div>
+<form method="post" class="panel form-panel wide-form">
+    <input asp-for="SeasonId" type="hidden" />
+    <div asp-validation-summary="All" class="validation" role="alert"></div>
+    <div class="form-grid">
+        <div class="field">
+            <label asp-for="HomeTeamId">Ev sahibi</label>
+            <select asp-for="HomeTeamId" required>
+                <option value="">Takım seçiniz</option>
+                @foreach (var team in teams)
+                {
+                    <option value="@team.TeamId">@team.TeamName</option>
+                }
+            </select>
+        </div>
+        <div class="field">
+            <label asp-for="AwayTeamId">Deplasman</label>
+            <select asp-for="AwayTeamId" required>
+                <option value="">Takım seçiniz</option>
+                @foreach (var team in teams)
+                {
+                    <option value="@team.TeamId">@team.TeamName</option>
+                }
+            </select>
+        </div>
+        <div class="field">
+            <label asp-for="MatchDate">Maç günü ve saati (TSİ)</label>
+            <input asp-for="MatchDate" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" required />
+        </div>
+        <div class="field">
+            <label asp-for="Week">Hafta</label>
+            <input asp-for="Week" type="number" min="1" max="52" required />
+        </div>
+        <div class="field span-two">
+            <label asp-for="StadiumId">Stadyum</label>
+            <select asp-for="StadiumId" required>
+                <option value="">Stadyum seçiniz</option>
+                @foreach (var stadium in stadiums)
+                {
+                    <option value="@stadium.StadiumId">@stadium.StadiumName · @stadium.City</option>
+                }
+            </select>
+        </div>
+    </div>
+    <p class="info-note">Yeni maçlar “Oynanmadı” durumuyla ve boş skorla oluşturulur.</p>
+    <div class="form-actions">
+        <button class="button" type="submit">Fikstüre ekle ↗</button>
+        <a class="text-button" asp-action="Index" asp-route-seasonId="@Model.SeasonId">Vazgeç</a>
+    </div>
+</form>

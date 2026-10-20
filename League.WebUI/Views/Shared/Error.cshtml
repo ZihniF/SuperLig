@@ -1,0 +1,15 @@
+@model ErrorDto
+
+@{
+    ViewData["Title"] = "Bir sorun oluştu";
+}
+
+<div class="empty-state panel">
+    <h1>Bir sorun oluştu.</h1>
+    <p>İşlem şu anda tamamlanamadı. Lütfen tekrar deneyiniz.</p>
+    @if (Model.ShowRequestId)
+    {
+        <p>İşlem numarası: @Model.RequestId</p>
+    }
+    <a class="button" asp-controller="Home" asp-action="Index">Lig merkezine dön</a>
+</div>

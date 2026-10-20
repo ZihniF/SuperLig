@@ -1,0 +1,71 @@
+@model UpdateMatchResultDto
+
+@{
+    ViewData["Title"] = "Skor ve istatistik";
+    var match = (MatchDto)ViewData["Match"]!;
+}
+
+<a class="back-link" asp-action="Index" asp-route-seasonId="@match.SeasonId">← Admin paneline dön</a>
+<div class="page-heading">
+    <div>
+        <div class="eyebrow">SKOR YÖNETİMİ · @match.Week. HAFTA</div>
+        <h1>Skor ve istatistik</h1>
+        <p>@match.HomeTeam.TeamName – @match.AwayTeam.TeamName</p>
+    </div>
+    <a class="button secondary" asp-action="Event" asp-route-id="@match.MatchId">Olay ekle ↗</a>
+</div>
+<form method="post" class="panel form-panel wide-form">
+    <input asp-for="MatchId" type="hidden" />
+    <div asp-validation-summary="All" class="validation" role="alert"></div>
+    <div class="field">
+        <label for="result-status">Maç durumu</label>
+        <select asp-for="Status" asp-items="Html.GetEnumSelectList<MatchStatus>()" id="result-status"></select>
+    </div>
+    <div class="form-grid">
+        <div class="field">
+            <label asp-for="HomeScore">@match.HomeTeam.TeamName · skor</label>
+            <input asp-for="HomeScore" type="number" min="0" max="99" data-score />
+        </div>
+        <div class="field">
+            <label asp-for="AwayScore">@match.AwayTeam.TeamName · skor</label>
+            <input asp-for="AwayScore" type="number" min="0" max="99" data-score />
+        </div>
+    </div>
+    <p class="muted small-text">Oynanmadı durumunda iki skoru da boş bırak. Olay kaydı bulunan maç bu duruma geri alınamaz.</p>
+    <h2 class="form-section-title">Maç istatistikleri</h2>
+    <div class="form-grid">
+        <div class="field">
+            <label asp-for="FirstHalfHomeGoals">Ev sahibi · ilk yarı gol</label>
+            <input asp-for="FirstHalfHomeGoals" type="number" min="0" max="99" />
+        </div>
+        <div class="field">
+            <label asp-for="FirstHalfAwayGoals">Deplasman · ilk yarı gol</label>
+            <input asp-for="FirstHalfAwayGoals" type="number" min="0" max="99" />
+        </div>
+        <div class="field">
+            <label asp-for="HomePossession">Ev sahibi · topa sahip olma (%)</label>
+            <input asp-for="HomePossession" type="number" min="0" max="100" />
+        </div>
+        <div class="info-note compact">Bilinmeyen istatistikleri boş bırak. Deplasman oranı ve ikinci yarı golleri, ilgili veriler girildiğinde hesaplanır.</div>
+        <div class="field">
+            <label asp-for="HomeShots">Ev sahibi · şut</label>
+            <input asp-for="HomeShots" type="number" min="0" max="100" />
+        </div>
+        <div class="field">
+            <label asp-for="AwayShots">Deplasman · şut</label>
+            <input asp-for="AwayShots" type="number" min="0" max="100" />
+        </div>
+        <div class="field">
+            <label asp-for="HomeCorners">Ev sahibi · korner</label>
+            <input asp-for="HomeCorners" type="number" min="0" max="100" />
+        </div>
+        <div class="field">
+            <label asp-for="AwayCorners">Deplasman · korner</label>
+            <input asp-for="AwayCorners" type="number" min="0" max="100" />
+        </div>
+    </div>
+    <div class="form-actions">
+        <button class="button" type="submit">Değişiklikleri kaydet ↗</button>
+        <a class="text-button" asp-controller="Home" asp-action="Match" asp-route-id="@match.MatchId">Maçı görüntüle</a>
+    </div>
+</form>

@@ -1,0 +1,74 @@
+@model LeaguePageDto
+
+@{
+    ViewData["Title"] = "Admin paneli";
+}
+
+<div class="page-heading">
+    <div>
+        <div class="eyebrow">YÖNETİM MERKEZİ</div>
+        <h1>Admin paneli</h1>
+        <p>Fikstürü oluştur, skorları ve sahadaki olayları kaydet.</p>
+    </div>
+    <a class="button" asp-action="Create" asp-route-seasonId="@Model.Season.SeasonId">＋ Yeni maç ekle</a>
+</div>
+<section class="metrics admin-metrics">
+    <div class="metric">
+        <span>Toplam maç</span>
+        <strong>@Model.Matches.Count</strong>
+    </div>
+    <div class="metric">
+        <span>Tamamlanan</span>
+        <strong>@Model.Matches.Count(x => x.Status == MatchStatus.Finished)</strong>
+    </div>
+    <div class="metric">
+        <span>Devam eden</span>
+        <strong>@Model.Matches.Count(x => x.Status == MatchStatus.Live)</strong>
+    </div>
+    <div class="metric">
+        <span>Oynanacak</span>
+        <strong>@Model.Matches.Count(x => x.Status == MatchStatus.NotPlayed)</strong>
+    </div>
+</section>
+<section class="panel">
+    <div class="panel-heading">
+        <h2>Maç yönetimi</h2>
+        <span class="count-label">@Model.Season.SeasonName</span>
+    </div>
+    <div class="table-scroll">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Hafta</th>
+                    <th>Tarih / TSİ</th>
+                    <th>Karşılaşma</th>
+                    <th>Skor</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var match in Model.Matches.OrderByDescending(x => x.Week).ThenBy(x => x.MatchDate))
+                {
+                    <tr>
+                        <td>@match.Week</td>
+                        <td>@match.MatchDate.ToString("dd MMM") · @DisplayText.Time(match.MatchDate, match.TimeConfirmed)</td>
+                        <td>
+                            <a asp-controller="Home" asp-action="Match" asp-route-id="@match.MatchId">@match.HomeTeam.TeamName – @match.AwayTeam.TeamName</a>
+                        </td>
+                        <td class="points">@(match.HomeScore?.ToString() ?? "–") : @(match.AwayScore?.ToString() ?? "–")</td>
+                        <td>
+                            <span class="status @match.Status.ToString().ToLowerInvariant()">@DisplayText.Status(match.Status)</span>
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <a asp-action="Result" asp-route-id="@match.MatchId">Skor / İstatistik</a>
+                                <a asp-action="Event" asp-route-id="@match.MatchId">Olay ekle ↗</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

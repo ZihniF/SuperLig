@@ -1,0 +1,72 @@
+@model IEnumerable<StandingDto>
+
+<div class="table-scroll">
+    <table class="standings-table">
+        <caption class="sr-only">Takımların puan durumu. Son beş sonuç soldan sağa eskiden yeniye sıralıdır.</caption>
+        <thead>
+            <tr>
+                <th scope="col" class="rank">#</th>
+                <th scope="col">Takım</th>
+                <th scope="col">
+                    <abbr title="Oynanan">O</abbr>
+                </th>
+                <th scope="col">
+                    <abbr title="Galibiyet">G</abbr>
+                </th>
+                <th scope="col">
+                    <abbr title="Beraberlik">B</abbr>
+                </th>
+                <th scope="col">
+                    <abbr title="Mağlubiyet">M</abbr>
+                </th>
+                <th scope="col">
+                    <abbr title="Atılan gol">A</abbr>
+                </th>
+                <th scope="col">
+                    <abbr title="Yenilen gol">Y</abbr>
+                </th>
+                <th scope="col">
+                    <abbr title="Averaj">AV</abbr>
+                </th>
+                <th scope="col">P</th>
+                <th scope="col" class="form-column">Son 5</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in Model)
+            {
+                <tr class="@(row.Position == 1 ? "leader-row" : "")">
+                    <td class="rank">
+                        <span class="position @(row.Position == 1 ? "first" : "")">@row.Position</span>
+                    </td>
+                    <th scope="row">
+                        <a class="team-cell" asp-controller="Home" asp-action="Fixtures" asp-route-seasonId="@ViewData["SeasonId"]" asp-route-teamId="@row.TeamId">
+                            <span class="crest" style="--team-color:@row.Color">@row.ShortName</span>
+                            <span>@row.TeamName</span>
+                        </a>
+                    </th>
+                    <td>@row.Played</td>
+                    <td>@row.Wins</td>
+                    <td>@row.Draws</td>
+                    <td>@row.Losses</td>
+                    <td>@row.GoalsFor</td>
+                    <td>@row.GoalsAgainst</td>
+                    <td>@(row.GoalDifference > 0 ? "+" : "")@row.GoalDifference</td>
+                    <td class="points">@row.Points</td>
+                    <td>
+                        <div class="form-badges">
+                            @foreach (var form in row.Form)
+                            {
+                                <span class="form-badge @form.ToLowerInvariant()" title="@(form == "W" ? "Galibiyet" : form == "D" ? "Beraberlik" : "Mağlubiyet")">@form</span>
+                            }
+                            @if (row.Form.Count == 0)
+                            {
+                                <span class="muted">—</span>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

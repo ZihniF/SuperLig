@@ -1,0 +1,70 @@
+@model LeaguePageDto
+
+@{
+    ViewData["Title"] = "Fikstür ve sonuçlar";
+}
+
+<div class="page-heading">
+    <div>
+        <div class="eyebrow">SAHADAN SKORLAR</div>
+        <h1>Fikstür ve sonuçlar</h1>
+        <p>Maç günlerini keşfet, sonuçlara ve detaylara göz at.</p>
+    </div>
+    <span class="outline-tag">@Model.Matches.Count karşılaşma</span>
+</div>
+<form class="filters panel" method="get">
+    <input type="hidden" name="seasonId" value="@Model.Season.SeasonId" />
+    <div class="field">
+        <label for="week">Hafta</label>
+        <select name="week" id="week">
+            <option value="">Tüm haftalar</option>
+            @foreach (var week in Model.Weeks)
+            {
+                <option value="@week" selected="@(Model.Week == week)">@week. hafta</option>
+            }
+        </select>
+    </div>
+    <div class="field">
+        <label asp-for="Status">Maç durumu</label>
+        <select asp-for="Status" asp-items="Html.GetEnumSelectList<MatchStatus>()">
+            <option value="">Tüm durumlar</option>
+        </select>
+    </div>
+    <div class="field">
+        <label asp-for="TeamId">Takım</label>
+        <select asp-for="TeamId">
+            <option value="">Tüm takımlar</option>
+            @foreach (var team in Model.Teams)
+            {
+                <option value="@team.TeamId">@team.TeamName</option>
+            }
+        </select>
+    </div>
+    <button class="button" type="submit">Filtrele ↗</button>
+    <a class="text-button" asp-action="Fixtures" asp-route-seasonId="@Model.Season.SeasonId">Temizle</a>
+</form>
+@if (Model.Matches.Count == 0)
+{
+    <div class="empty-state panel">
+        <h2>Karşılaşma bulunamadı.</h2>
+        <p>Başka bir hafta, takım veya durum seçebilirsin.</p>
+    </div>
+}
+@foreach (var group in Model.Matches.GroupBy(x => x.Week).OrderBy(x => x.Key))
+{
+    <section class="section-block">
+        <div class="section-heading">
+            <h2>
+                <span class="week-number">@group.Key.ToString("00")</span>
+                @group.Key. hafta
+            </h2>
+            <span class="muted">@group.Count() maç</span>
+        </div>
+        <div class="match-grid">
+            @foreach (var match in group)
+            {
+                <partial name="_MatchCard" model="match" />
+            }
+        </div>
+    </section>
+}

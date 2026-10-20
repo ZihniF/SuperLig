@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="League.EntityLayer/League.EntityLayer.csproj" />
+  <Project Path="League.DataAccessLayer/League.DataAccessLayer.csproj" />
+  <Project Path="League.BusinessLayer/League.BusinessLayer.csproj" />
+  <Project Path="League.WebUI/League.WebUI.csproj" />
+</Solution>

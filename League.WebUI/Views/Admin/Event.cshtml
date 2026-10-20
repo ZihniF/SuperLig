@@ -1,0 +1,115 @@
+@model CreateMatchEventDto
+
+@{
+    var editing = Model as UpdateMatchEventDto;
+    ViewData["Title"] = editing == null ? "Maç olayı ekle" : "Maç olayını düzenle";
+    var match = (MatchDto)ViewData["Match"]!;
+}
+
+<a class="back-link" asp-action="Index" asp-route-seasonId="@match.SeasonId">← Admin paneline dön</a>
+<div class="page-heading">
+    <div>
+        <div class="eyebrow">MAÇ OLAYLARI</div>
+        <h1>@(editing == null ? "Maç olaylarını yönet." : "Maç olayını düzenle.")</h1>
+        <p>@match.HomeTeam.TeamName – @match.AwayTeam.TeamName</p>
+    </div>
+    <a class="button secondary" asp-action="Result" asp-route-id="@match.MatchId">Skor / İstatistik ↗</a>
+</div>
+<div class="detail-grid">
+    <form method="post"
+          asp-action="@(editing == null ? "Event" : "EditEvent")"
+          asp-route-id="@match.MatchId"
+          asp-route-eventId="@editing?.MatchEventId"
+          class="panel form-panel">
+        <input asp-for="MatchId" type="hidden" />
+        @if (editing != null)
+        {
+            <input type="hidden" name="MatchEventId" value="@editing.MatchEventId" />
+        }
+        <div asp-validation-summary="All" class="validation" role="alert"></div>
+        <div class="form-grid">
+            <div class="field">
+                <label asp-for="ActionType">Olay türü</label>
+                <select asp-for="ActionType" asp-items="Html.GetEnumSelectList<ActionType>()"></select>
+            </div>
+            <div class="field">
+                <label asp-for="Minute">Dakika</label>
+                <input asp-for="Minute" type="number" min="0" max="130" required />
+            </div>
+            <div class="field">
+                <label asp-for="AddedMinute">Uzatma dakikası (+)</label>
+                <input asp-for="AddedMinute" type="number" min="0" max="30" />
+                <p class="muted small-text">90+1 için dakika 90, uzatma 1. Uzatma yoksa 0.</p>
+            </div>
+            <div class="field span-two">
+                <label asp-for="TeamId">Takım</label>
+                <select asp-for="TeamId">
+                    <option value="@match.HomeTeamId">@match.HomeTeam.TeamName</option>
+                    <option value="@match.AwayTeamId">@match.AwayTeam.TeamName</option>
+                </select>
+            </div>
+            <div class="field span-two">
+                <label asp-for="Description">Kısa açıklama</label>
+                <textarea asp-for="Description" rows="3" maxlength="200" placeholder="Örn. Emre Yılmaz golü attı." required></textarea>
+                <p class="muted small-text">
+                    Golü atan veya kartı gören oyuncuyu yaz.
+                    Oyuncu değişikliğinde oyundan çıkan ve oyuna giren oyuncuları belirt.
+                </p>
+            </div>
+        </div>
+        <p class="info-note">Olay eklemek veya düzenlemek skoru değiştirmez. Toplam skoru Skor / İstatistik ekranından güncelle.</p>
+        @if (match.Status == MatchStatus.NotPlayed)
+        {
+            <p class="validation">Önce skor ekranından maçı başlatmalı veya sonucunu girmelisin.</p>
+        }
+        <div class="form-actions">
+            <button class="button" type="submit" disabled="@(match.Status == MatchStatus.NotPlayed)">
+                @(editing == null ? "Olayı kaydet ↗" : "Değişiklikleri kaydet ↗")
+            </button>
+            @if (editing != null)
+            {
+                <a class="text-button" asp-action="Event" asp-route-id="@match.MatchId">Vazgeç / Yeni olay</a>
+            }
+        </div>
+    </form>
+    <section class="panel">
+        <div class="panel-heading">
+            <h2>Kayıtlı olaylar</h2>
+            <span class="count-label">@match.Events.Count OLAY</span>
+        </div>
+        @if (match.Events.Count == 0)
+        {
+            <div class="empty-state">
+                <h3>İlk olayı sen ekle.</h3>
+                <p>Goller ve kartlar burada listelenir.</p>
+            </div>
+        }
+        else
+        {
+            <ol class="timeline">
+                @foreach (var item in match.Events.OrderBy(x => x.Minute).ThenBy(x => x.AddedMinute).ThenBy(x => x.MatchEventId))
+                {
+                    <li>
+                        <span class="minute">@DisplayText.Minute(item.Minute, item.AddedMinute)′</span>
+                        <div>
+                            <strong>
+                                @DisplayText.Action(item.ActionType)
+                                <span>@item.Team.TeamName</span>
+                            </strong>
+                            <p>@item.Description</p>
+                            <a class="inline-link"
+                               asp-action="EditEvent"
+                               asp-route-id="@match.MatchId"
+                               asp-route-eventId="@item.MatchEventId">
+                                Düzenle ↗
+                            </a>
+                        </div>
+                    </li>
+                }
+            </ol>
+        }
+        <div class="panel-footnote">
+            <a class="inline-link" asp-controller="Home" asp-action="Match" asp-route-id="@match.MatchId">Maç merkezini aç ↗</a>
+        </div>
+    </section>
+</div>

@@ -1,0 +1,35 @@
+@model LeaguePageDto
+
+@{
+    ViewData["Title"] = "Puan durumu";
+}
+
+<div class="page-heading">
+    <div>
+        <div class="eyebrow">ZİRVE YARIŞI</div>
+        <h1>Puan durumu</h1>
+        <p>Her sonuçla yeniden şekillenen lig tablosu.</p>
+    </div>
+    <span class="outline-tag">@Model.Teams.Count takım</span>
+</div>
+<section class="panel">
+    <div class="panel-heading">
+        <div>
+            <h2>Trendyol Süper Lig</h2>
+            <p>@Model.Season.SeasonName</p>
+        </div>
+        <span class="live-label">
+            <span class="green-dot"></span>
+            Dinamik hesaplama
+        </span>
+    </div>
+    <partial name="_StandingsTable" model="Model.Standings" />
+    <div class="panel-footnote">
+        <span>W Galibiyet · D Beraberlik · L Mağlubiyet</span>
+        <span>Son 5: soldan sağa eskiden yeniye</span>
+    </div>
+</section>
+<div class="info-note">
+    Sıralama: puan → averaj → atılan gol → takım adı.
+    Devam eden ve oynanmamış maçlar puana dahil edilmez.
+</div>

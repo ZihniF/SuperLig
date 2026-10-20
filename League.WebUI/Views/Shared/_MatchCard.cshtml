@@ -1,0 +1,26 @@
+@model MatchDto
+
+<a class="match-card" asp-controller="Home" asp-action="Match" asp-route-id="@Model.MatchId">
+    <div class="match-card-top">
+        <span>@Model.Week. HAFTA · @Model.MatchDate.ToString("dd MMM")</span>
+        <span class="status @Model.Status.ToString().ToLowerInvariant()">@DisplayText.Status(Model.Status)</span>
+    </div>
+    <div class="match-team">
+        <span>
+            <span class="crest small" style="--team-color:@Model.HomeTeam.Color">@Model.HomeTeam.ShortName</span>
+            @Model.HomeTeam.TeamName
+        </span>
+        <strong>@(Model.HomeScore?.ToString() ?? "–")</strong>
+    </div>
+    <div class="match-team">
+        <span>
+            <span class="crest small" style="--team-color:@Model.AwayTeam.Color">@Model.AwayTeam.ShortName</span>
+            @Model.AwayTeam.TeamName
+        </span>
+        <strong>@(Model.AwayScore?.ToString() ?? "–")</strong>
+    </div>
+    <div class="match-card-bottom">
+        <span>@DisplayText.Time(Model.MatchDate, Model.TimeConfirmed)</span>
+        <span>Maç merkezi ↗</span>
+    </div>
+</a>

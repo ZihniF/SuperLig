@@ -1,0 +1,137 @@
+@model LeaguePageDto
+
+@{
+    ViewData["Title"] = "Genel bakış";
+    var finished = Model.Matches.Where(x => x.Status == MatchStatus.Finished).ToList();
+    var goals = finished.Sum(x => (x.HomeScore ?? 0) + (x.AwayScore ?? 0));
+    var leader = Model.Standings.FirstOrDefault();
+    var nextMatches = Model.Matches.Where(x => x.Status != MatchStatus.Finished).Take(3).ToList();
+}
+
+<div class="page-heading">
+    <div>
+        <div class="eyebrow">SEZONUN NABZI</div>
+        <h1>Lige yakından bak.</h1>
+        <p>Puan tablosu, maçlar ve sahadan tüm gelişmeler.</p>
+    </div>
+    <span class="outline-tag">
+        <span class="green-dot"></span>
+        @Model.Season.SeasonName
+    </span>
+</div>
+<section class="hero">
+    <div class="hero-copy">
+        <div class="hero-kicker">
+            <span class="hero-star">✦</span>
+            TRENDYOL SÜPER LİG
+        </div>
+        <h2>
+            90 dakika.
+            <br />
+            Sınırsız heyecan.
+        </h2>
+        <p>
+            Bir gol her şeyi değiştirir.
+            <br />
+            Ligin hikâyesini birlikte takip et.
+        </p>
+        <a class="button light" asp-action="Fixtures" asp-route-seasonId="@Model.Season.SeasonId">
+            Maçları keşfet
+            <span>↗</span>
+        </a>
+    </div>
+    <div class="pitch-art" aria-hidden="true">
+        <div class="pitch-lines">
+            <div class="pitch-circle"></div>
+            <div class="pitch-half"></div>
+            <div class="penalty left"></div>
+            <div class="penalty right"></div>
+        </div>
+        <div class="football">⚽</div>
+        <span class="art-label">OYUN BURADA.</span>
+    </div>
+    <span class="hero-watermark" aria-hidden="true">SÜPER</span>
+</section>
+<section class="metrics" aria-label="Sezon özeti">
+    <div class="metric">
+        <span>Lig takımları</span>
+        <strong>
+            @Model.Teams.Count
+            <small>takım</small>
+        </strong>
+        <div class="metric-note">Aynı heyecan, farklı renkler</div>
+        <span class="metric-icon">⚑</span>
+    </div>
+    <div class="metric">
+        <span>Tamamlanan maç</span>
+        <strong>
+            @finished.Count
+            <small>karşılaşma</small>
+        </strong>
+        <div class="metric-note">Sahadan puan tablosuna</div>
+        <span class="metric-icon">▦</span>
+    </div>
+    <div class="metric">
+        <span>Toplam gol</span>
+        <strong>
+            @goals
+            <small>gol</small>
+        </strong>
+        <div class="metric-note">@(finished.Count == 0 ? "0" : ((double)goals / finished.Count).ToString("0.00")) maç başına gol</div>
+        <span class="metric-icon">◎</span>
+    </div>
+    <div class="metric">
+        <span>Zirvedeki takım</span>
+        <strong class="leader-name">@(leader?.TeamName ?? "—")</strong>
+        <div class="metric-note">
+            <span class="green-dot"></span>
+            @(leader?.Points ?? 0) puan ile lider
+        </div>
+        <span class="metric-icon">♜</span>
+    </div>
+</section>
+<section class="section-block">
+    <div class="section-heading">
+        <div>
+            <h2>
+                Maç merkezi
+                @if (nextMatches.Count > 0)
+                {
+                    <span class="count-label">@nextMatches[0].Week. HAFTA</span>
+                }
+            </h2>
+            <p>Sıradaki karşılaşmalar ve devam eden maçlar.</p>
+        </div>
+        <a class="inline-link" asp-action="Fixtures" asp-route-seasonId="@Model.Season.SeasonId">
+            Tüm fikstür
+            <span>↗</span>
+        </a>
+    </div>
+    <div class="match-grid">
+        @foreach (var match in nextMatches)
+        {
+            <partial name="_MatchCard" model="match" />
+        }
+    </div>
+    @if (nextMatches.Count == 0)
+    {
+        <div class="empty-state panel">Bu sezon için bekleyen maç bulunmuyor.</div>
+    }
+</section>
+<section class="panel section-block">
+    <div class="panel-heading">
+        <div>
+            <h2>Puan durumu</h2>
+            <p>Zirve yarışında son durum.</p>
+        </div>
+        <a class="inline-link" asp-action="Standings" asp-route-seasonId="@Model.Season.SeasonId">Tüm tablo ↗</a>
+    </div>
+    <partial name="_StandingsTable" model="Model.Standings.Take(6)" />
+    <div class="panel-footnote">
+        <span>
+            <span class="green-dot"></span>
+            Yalnızca bitmiş maçlardan hesaplanır.
+        </span>
+        <span>Galibiyet 3 · Beraberlik 1 · Mağlubiyet 0</span>
+    </div>
+</section>
